@@ -2,34 +2,35 @@ package com.smooth.smoothtix;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
-
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity {
+public class LocationActivity_test extends AppCompatActivity {
     public static final int DEFAULT_UPDATE_INTERVAL = 30;
     public static final int FAST_UPDATE_INTERVAL = 5;
     public static final int PERMISSION_FINE_LOCATION = 99;
+    int test = 0;
     TextView tv_lat, tv_lon, tv_altitude, tv_accuracy, tv_speed, tv_sensor, tv_updates, tv_address;
     Button btn_showMap;
     Switch sw_locationsupdates, sw_gps;
@@ -44,7 +45,8 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_location_test);
+        setTransparentNotificationBar();
 
         // give each UI variable a value.
         tv_lat = findViewById(R.id.tv_lat);
@@ -109,7 +111,7 @@ public class HomeActivity extends AppCompatActivity {
         btn_showMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(HomeActivity.this, MapsActivity.class);
+                Intent i = new Intent(LocationActivity_test.this, MapsActivity.class);
                 startActivity(i);
             }
         });
@@ -177,12 +179,14 @@ public class HomeActivity extends AppCompatActivity {
                 tv_altitude.setText("Altitude not available");
             }
 
-            // Check and set speed
-            if (location.hasSpeed()) {
-                tv_sensor.setText(String.valueOf(location.getSpeed()));
-            } else {
-                tv_sensor.setText("Speed not available");
-            }
+//            // Check and set speed
+//            if (location.hasSpeed()) {
+//                tv_speed.setText(String.valueOf(location.getSpeed()));
+//            } else {
+//                tv_speed.setText("Speed not available");
+//            }
+            test++;
+            tv_speed.setText(String.valueOf(test));
 
             Geocoder geocoder = new Geocoder(this);
             try {
@@ -218,6 +222,18 @@ public class HomeActivity extends AppCompatActivity {
                 Toast.makeText(this, "This app requires permission to be granted in order to work properly", Toast.LENGTH_SHORT).show();
                 finish();
             }
+        }
+    }
+    protected void setTransparentNotificationBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.setStatusBarColor(Color.TRANSPARENT);
+            window.getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR); // Add this flag
         }
     }
 }

@@ -137,7 +137,7 @@
             app:layout_constraintEnd_toEndOf="@+id/view"
             app:layout_constraintStart_toEndOf="@+id/destination"
             app:layout_constraintTop_toTopOf="@+id/view"
-            android:visibility="gone" />
+            android:backgroundTint="#FF0606"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
