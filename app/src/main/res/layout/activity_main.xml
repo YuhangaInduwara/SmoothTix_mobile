@@ -11,5 +11,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:onClick="loginControl"
-        android:text="LogIn" />
+        android:text="LogIn"
+        android:backgroundTint="#FF0606"/>
 </RelativeLayout>

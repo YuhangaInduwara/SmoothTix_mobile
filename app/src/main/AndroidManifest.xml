@@ -49,7 +49,7 @@
 
             <!-- Add intent-filter or other attributes if necessary -->
         </activity>
-        <activity android:name=".HomeActivity">
+        <activity android:name=".LocationActivity_test">
 
             <!-- Add intent-filter or other attributes if necessary -->
         </activity>
@@ -60,7 +60,12 @@
         <activity android:name=".ConductorActivity">
 
             <!-- Add intent-filter or other attributes if necessary -->
-        </activity><activity android:name=".PassengerActivity">
+        </activity>
+        <activity android:name=".PassengerActivity">
+
+            <!-- Add intent-filter or other attributes if necessary -->
+        </activity>
+        <activity android:name=".LocationActivity">
 
             <!-- Add intent-filter or other attributes if necessary -->
         </activity>
