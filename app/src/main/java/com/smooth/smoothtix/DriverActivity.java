@@ -3,15 +3,17 @@ package com.smooth.smoothtix;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
@@ -28,27 +30,99 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DriverActivity extends AppCompatActivity {
+
+    private static final String server_url = "http://10.0.2.2:2000/SmoothTix_war_exploded";
     private static final String TAG = "DriverActivity";
+    TextView user_name;
+    String userName = "";
+    String nic = "";
+    String userRole = "";
+    String p_id = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver);
+        user_name = findViewById(R.id.user_name);
         setTransparentNotificationBar();
-        new CheckSessionTask().execute();
+        executeCheckSessionTask();
+
+        ImageView userImageView = findViewById(R.id.userImage);
+
+        userImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Show your logout menu or perform any other actions
+                showLogoutMenu(v);
+            }
+        });
+
     }
 
-    private class CheckSessionTask extends AsyncTask<Void, Void, String> {
+    private void showLogoutMenu(View v) {
+        PopupMenu popupMenu = new PopupMenu(this, v);
+        popupMenu.inflate(R.menu.logout_menu); // Assuming you have a menu resource file
+
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                // Handle menu item clicks
+                if (item.getItemId() == R.id.menu_logout) {
+                    // Add your logout logic here
+                    // For example, you might launch a login activity and finish the current one
+                    startActivity(new Intent(DriverActivity.this, LoginActivity.class));
+                    finish();
+                }
+                else if (item.getItemId() == R.id.menu_passenger) {
+                    // Add your logout logic here
+                    // For example, you might launch a login activity and finish the current one
+                    startActivity(new Intent(DriverActivity.this, PassengerActivity.class));
+                    finish();
+                }
+                return true;
+            }
+        });
+
+        popupMenu.show();
+    }
+
+    private void executeCheckSessionTask() {
+        CheckSession checkSessionTask = new CheckSession(DriverActivity.this, new CheckSessionCallback() {
+            @Override
+            public void onCheckSessionCompleted(String result) {
+//                Toast.makeText(DriverActivity.this, result, Toast.LENGTH_SHORT).show();
+                try {
+                    JSONObject userData = new JSONObject(result);
+
+                    userName = userData.getString("user_name");
+                    nic = userData.getString("nic");
+                    userRole = userData.getString("user_role");
+                    p_id = userData.getString("p_id");
+                    user_name.setText(userName);
+                    new GetDriverId().execute(p_id);
+                } catch (JSONException e) {
+                    // Handle JSONException, e.g., if the JSON string is malformed
+                    e.printStackTrace();
+                }
+            }
+        });
+        checkSessionTask.execute();
+    }
+
+    private class GetDriverId extends AsyncTask<String, Void, String> {
         @Override
-        protected String doInBackground(Void... voids) {
+        protected String doInBackground(String... params) {
+            String p_id = params[0];
             try {
-                URL url = new URL("http://10.0.2.2:2000/SmoothTix_war_exploded/checkSessionController");
+                String apiUrl = server_url + "/driverController";
+                URL url = new URL(apiUrl);
+
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-                // Set the request method to GET
                 connection.setRequestMethod("GET");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("p_id", p_id);
 
-                // Read the response
                 int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
@@ -59,20 +133,17 @@ public class DriverActivity extends AppCompatActivity {
                         }
                         return response.toString();
                     }
+                } else {
+                    return "Error: " + responseCode;
                 }
-                return String.valueOf(responseCode);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "session_error";
+            } catch (IOException e) {
+                return "Error: " + e.getMessage();
             }
         }
 
         @Override
         protected void onPostExecute(String result) {
-            // Handle the session data or error
-            Toast.makeText(DriverActivity.this, result, Toast.LENGTH_SHORT).show();
-            String driver_id = "D001";
-            new FetchDataTask().execute(driver_id);
+            new FetchDataTask().execute(result);
         }
     }
 
@@ -81,7 +152,7 @@ public class DriverActivity extends AppCompatActivity {
             protected String doInBackground(String... params) {
                 String driverId = params[0];
                 try {
-                    String apiUrl = "http://10.0.2.2:2000/SmoothTix_war_exploded/scheduleController";
+                    String apiUrl = server_url + "/scheduleController";
                     URL url = new URL(apiUrl);
 
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -165,12 +236,7 @@ public class DriverActivity extends AppCompatActivity {
             if(visibility.equals("GONE")){
                 btn_showMap.setEnabled(false);
                 int disabledColor = Color.GRAY; // Set your desired color for the disabled state
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    btn_showMap.setBackgroundTintList(android.content.res.ColorStateList.valueOf(disabledColor));
-                } else {
-                    // For older versions, use setBackgroundColor
-                    btn_showMap.setBackgroundColor(disabledColor);
-                }
+                btn_showMap.setBackgroundTintList(android.content.res.ColorStateList.valueOf(disabledColor));
             }
             TextView schedule_id = inflatedViewCurrent.findViewById(R.id.schedule_id);
             schedule_id.setText(schedule.getScheduleId());
@@ -203,15 +269,13 @@ public class DriverActivity extends AppCompatActivity {
         }
     }
     protected void setTransparentNotificationBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(Color.TRANSPARENT);
-            window.getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR); // Add this flag
-        }
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(Color.TRANSPARENT);
+        window.getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR); // Add this flag
     }
 }
