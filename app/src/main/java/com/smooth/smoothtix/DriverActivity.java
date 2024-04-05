@@ -52,7 +52,6 @@ public class DriverActivity extends AppCompatActivity {
         userImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Show your logout menu or perform any other actions
                 showLogoutMenu(v);
             }
         });
@@ -61,21 +60,16 @@ public class DriverActivity extends AppCompatActivity {
 
     private void showLogoutMenu(View v) {
         PopupMenu popupMenu = new PopupMenu(this, v);
-        popupMenu.inflate(R.menu.logout_menu); // Assuming you have a menu resource file
+        popupMenu.inflate(R.menu.logout_menu);
 
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                // Handle menu item clicks
                 if (item.getItemId() == R.id.menu_logout) {
-                    // Add your logout logic here
-                    // For example, you might launch a login activity and finish the current one
                     startActivity(new Intent(DriverActivity.this, LoginActivity.class));
                     finish();
                 }
                 else if (item.getItemId() == R.id.menu_passenger) {
-                    // Add your logout logic here
-                    // For example, you might launch a login activity and finish the current one
                     startActivity(new Intent(DriverActivity.this, PassengerActivity.class));
                     finish();
                 }
@@ -90,7 +84,6 @@ public class DriverActivity extends AppCompatActivity {
         CheckSession checkSessionTask = new CheckSession(DriverActivity.this, new CheckSessionCallback() {
             @Override
             public void onCheckSessionCompleted(String result) {
-//                Toast.makeText(DriverActivity.this, result, Toast.LENGTH_SHORT).show();
                 try {
                     JSONObject userData = new JSONObject(result);
 
@@ -101,7 +94,6 @@ public class DriverActivity extends AppCompatActivity {
                     user_name.setText(userName);
                     new GetDriverId().execute(p_id);
                 } catch (JSONException e) {
-                    // Handle JSONException, e.g., if the JSON string is malformed
                     e.printStackTrace();
                 }
             }
@@ -150,7 +142,16 @@ public class DriverActivity extends AppCompatActivity {
     private class FetchDataTask extends AsyncTask<String, Void, String> {
             @Override
             protected String doInBackground(String... params) {
-                String driverId = params[0];
+                String driverId = "";
+                try {
+                    JSONArray jsonArray = new JSONArray(params[0]);
+                    JSONObject jsonObject = jsonArray.getJSONObject(0);
+
+                    driverId = jsonObject.getString("driver_id");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+
                 try {
                     String apiUrl = server_url + "/scheduleController";
                     URL url = new URL(apiUrl);
@@ -160,6 +161,7 @@ public class DriverActivity extends AppCompatActivity {
                     connection.setRequestMethod("GET");
                     connection.setRequestProperty("Content-Type", "application/json");
                     connection.setRequestProperty("driver_id", driverId);
+
 
                     int responseCode = connection.getResponseCode();
                     if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -235,7 +237,7 @@ public class DriverActivity extends AppCompatActivity {
             Button btn_showMap = inflatedViewCurrent.findViewById(R.id.btn_showMap);
             if(visibility.equals("GONE")){
                 btn_showMap.setEnabled(false);
-                int disabledColor = Color.GRAY; // Set your desired color for the disabled state
+                int disabledColor = Color.GRAY;
                 btn_showMap.setBackgroundTintList(android.content.res.ColorStateList.valueOf(disabledColor));
             }
             TextView schedule_id = inflatedViewCurrent.findViewById(R.id.schedule_id);
@@ -276,6 +278,6 @@ public class DriverActivity extends AppCompatActivity {
         window.getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR); // Add this flag
+                        | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
     }
 }

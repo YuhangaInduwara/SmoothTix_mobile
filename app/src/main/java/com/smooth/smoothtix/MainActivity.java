@@ -7,8 +7,20 @@ import android.view.View;
 import android.content.Intent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
+
+    String userName = "";
+    String nic = "";
+    String userRole = "";
+    String p_id = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -16,8 +28,44 @@ public class MainActivity extends AppCompatActivity {
         setTransparentNotificationBar();
     }
     public void loginControl(View view){
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
+        Intent intent_login = new Intent(this, LoginActivity.class);
+        Intent intent_driver = new Intent(this, DriverActivity.class);
+        Intent intent_conductor = new Intent(this, ConductorActivity.class);
+        Intent intent_passenger = new Intent(this, PassengerActivity.class);
+        CheckSession checkSessionTask = new CheckSession(MainActivity.this, new CheckSessionCallback() {
+            @Override
+            public void onCheckSessionCompleted(String result) {
+                if(Objects.equals(result, "401")){
+                    startActivity(intent_login);
+                }
+                else{
+                    Toast.makeText(MainActivity.this, "result", Toast.LENGTH_SHORT).show();
+                    try {
+                        JSONObject userData = new JSONObject(result);
+
+                        userName = userData.getString("user_name");
+                        nic = userData.getString("nic");
+                        userRole = userData.getString("user_role");
+                        p_id = userData.getString("p_id");
+                        if(Objects.equals(userRole, "6")){
+                            startActivity(intent_passenger);
+                        }
+                        else if(Objects.equals(userRole, "5")){
+                            startActivity(intent_conductor);
+                        }
+                        else if(Objects.equals(userRole, "4")){
+                            startActivity(intent_driver);
+                        }
+                        else{
+                            Toast.makeText(MainActivity.this, "You are not allowed to login!", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        checkSessionTask.execute();
     }
     protected void setTransparentNotificationBar() {
         Window window = getWindow();

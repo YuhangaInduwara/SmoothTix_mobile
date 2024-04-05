@@ -4,20 +4,19 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class CheckSession extends AsyncTask<Void, Void, String> {
+public class Logout extends AsyncTask<Void, Void, String> {
 
     private final Context context;
-    private final CheckSessionCallback callback;
+    private final LogoutCallback callback;
     private static final String server_url = "http://10.0.2.2:2000/SmoothTix_war_exploded";
 
-    public CheckSession(Context context, CheckSessionCallback callback) {
+    public Logout(Context context, LogoutCallback callback) {
         this.context = context;
         this.callback = callback;
     }
@@ -32,7 +31,7 @@ public class CheckSession extends AsyncTask<Void, Void, String> {
                 return "Token not available";
             }
 
-            String apiUrl = server_url + "/loginController?action=validate";
+            String apiUrl = server_url + "/loginController?action=logout";
             URL url = new URL(apiUrl);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -62,6 +61,6 @@ public class CheckSession extends AsyncTask<Void, Void, String> {
     @Override
     protected void onPostExecute(String result) {
 //        Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
-        callback.onCheckSessionCompleted(result);
+        callback.onLogoutCompleted(result);
     }
 }
