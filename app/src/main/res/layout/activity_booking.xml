@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="3dp"
-            android:text="Schedule ID:"
+            android:text="Booking ID:"
             app:layout_constraintStart_toStartOf="@+id/view"
             app:layout_constraintTop_toTopOf="@+id/view" />
 
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:layout_marginTop="3dp"
-            android:text="SHxxxx"
+            android:text="BKxxxx"
             app:layout_constraintStart_toEndOf="@+id/textView9"
             app:layout_constraintTop_toTopOf="@+id/view" />
 
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
-            android:text="BusProfile ID:"
+            android:text="Bus:"
             app:layout_constraintStart_toStartOf="@+id/view"
             app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
@@ -57,7 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:layout_marginTop="10dp"
-            android:text="BPXXXX"
+            android:text="BRxxxx"
             app:layout_constraintStart_toEndOf="@+id/textView12"
             app:layout_constraintTop_toBottomOf="@+id/schedule_id" />
 
@@ -132,12 +132,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="35dp"
+            android:backgroundTint="#FF0606"
             android:text="Start"
             app:layout_constraintBottom_toBottomOf="@+id/view"
             app:layout_constraintEnd_toEndOf="@+id/view"
+            app:layout_constraintHorizontal_bias="0.763"
             app:layout_constraintStart_toEndOf="@+id/destination"
             app:layout_constraintTop_toTopOf="@+id/view"
-            android:backgroundTint="#FF0606"/>
+            app:layout_constraintVertical_bias="0.486" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

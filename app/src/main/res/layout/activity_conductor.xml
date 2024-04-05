@@ -1,25 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:backgroundTint="#FFFFFF">
 
+    <!-- Logo ImageView -->
     <ImageView
         android:id="@+id/imageView2"
         android:layout_width="106dp"
         android:layout_height="82dp"
         android:layout_marginStart="-50dp"
         android:layout_marginTop="9dp"
-        app:layout_constraintEnd_toStartOf="@+id/textView"
+        app:layout_constraintEnd_toStartOf="@+id/user_name"
         app:layout_constraintHorizontal_bias="0.302"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/logo" />
 
+    <!-- User Image ImageView -->
     <ImageView
-        android:id="@+id/imageView4"
+        android:id="@+id/userImage"
         android:layout_width="38dp"
         android:layout_height="45dp"
         android:layout_marginTop="23dp"
@@ -30,15 +33,207 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/aboutme" />
 
+    <!-- User Name TextView -->
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="16dp"
         android:text="UserName"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView4"
-        app:layout_constraintEnd_toStartOf="@+id/imageView4"
+        app:layout_constraintBottom_toBottomOf="@+id/userImage"
+        app:layout_constraintEnd_toStartOf="@+id/userImage"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.738" />
+
+    <!-- Box layout with border at the top -->
+    <LinearLayout
+        android:id="@+id/boxLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/user_name">
+
+        <!-- Schedule ID -->
+        <TextView
+            android:id="@+id/scheduleIdLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Schedule Id:"
+            android:textColor="#009688"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/scheduleId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SH0001"
+            android:textColor="#757575"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Route Number -->
+        <TextView
+            android:id="@+id/routeNumberLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Route Number:"
+            android:textColor="#009688"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/routeNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="R001"
+            android:textColor="#757575"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Start -->
+        <TextView
+            android:id="@+id/startLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start:"
+            android:textColor="#009688"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Colombo"
+            android:textColor="#757575"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Destination -->
+        <TextView
+            android:id="@+id/destinationLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Destination:"
+            android:textColor="#009688"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/destination"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Galle"
+            android:textColor="#757575"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Date -->
+        <TextView
+            android:id="@+id/dateLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date:"
+            android:textColor="#009688"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2024/02/03"
+            android:textColor="#757575"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Time -->
+        <TextView
+            android:id="@+id/timeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Time:"
+            android:textColor="#009688"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="13:00"
+            android:textColor="#757575"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Seat Availability -->
+        <TextView
+            android:id="@+id/seatAvailabilityLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Seat availability:"
+            android:textColor="#009688"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/seatAvailability"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="20"
+            android:textColor="#757575"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Button 1 -->
+            <Button
+                android:id="@+id/button1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Button 1"
+                android:background="#FFC107"
+                android:textColor="#FFFFFF"/>
+
+            <!-- Button 2 -->
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Button 2"
+                android:background="#FFC107"
+                android:textColor="#FFFFFF"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Upcoming Schedules -->
+    <LinearLayout
+        android:id="@+id/upcomingLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/boxLayout">
+
+        <!-- Add TextViews or other views for upcoming schedules here -->
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
