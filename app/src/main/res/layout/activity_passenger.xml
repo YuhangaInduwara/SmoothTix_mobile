@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:backgroundTint="#FFFFFF">
 
+    <!-- Logo Image -->
     <ImageView
         android:id="@+id/imageView2"
         android:layout_width="106dp"
@@ -16,87 +17,212 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/logo" />
 
+    <!-- User Name TextView -->
     <TextView
         android:id="@+id/user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="100dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="30dp"
         android:text="UserName"
         app:layout_constraintStart_toEndOf="@+id/imageView2"
         app:layout_constraintTop_toTopOf="@+id/imageView2" />
 
+    <!-- User Image -->
     <ImageView
         android:id="@+id/userImage"
         android:layout_width="38dp"
         android:layout_height="45dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/imageView2"
         app:srcCompat="@drawable/aboutme" />
 
+    <!-- Border View for Title -->
+    <View
+        android:id="@+id/title_border"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/imageView2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Next Booking Topic -->
+
+    <!-- Schedule Details Container -->
+
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/next_booking_topic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="Next Booking"
+        android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.081"
+        app:layout_constraintHorizontal_bias="0.101"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Other Bookings"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.089"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/container1" />
+        app:layout_constraintTop_toBottomOf="@id/title_border" />
 
     <LinearLayout
-        android:id="@+id/container1"
-        android:layout_width="445dp"
-        android:layout_height="115dp"
-        android:layout_marginStart="16dp"
+        android:id="@+id/schedule_detail_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.66"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@id/next_booking_topic"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2"
-        app:layout_constraintWidth_default="percent"
-        app:layout_constraintWidth_percent="0.8"
-        tools:context=".MainActivity" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3"
-        android:contentDescription="Scrollable content">
-
-        <LinearLayout
-            android:id="@+id/container2"
+        <!-- Schedule No. -->
+        <TextView
+            android:id="@+id/schedule_no"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="vertical"
-            android:padding="10dp">
+            android:paddingStart="25dp"
+            android:paddingEnd="16dp"
+            android:paddingVertical="8dp"
+            android:text="Schedule No: 123"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+        <!-- Booking No. -->
+        <TextView
+            android:id="@+id/booking_no"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="25dp"
+            android:paddingEnd="16dp"
+            android:paddingVertical="8dp"
+            android:text="Booking No: 456"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
 
-            <!-- Your existing content here -->
+        <!-- Route No. -->
+        <TextView
+            android:id="@+id/route_no"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="25dp"
+            android:paddingEnd="16dp"
+            android:paddingVertical="8dp"
+            android:text="Route No: ABC"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
 
-        </LinearLayout>
+        <!-- Route -->
+        <TextView
+            android:id="@+id/route"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="25dp"
+            android:paddingEnd="16dp"
+            android:paddingVertical="8dp"
+            android:text="Route: XYZ"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
 
-    </ScrollView>
+        <!-- Bus No. -->
+        <TextView
+            android:id="@+id/bus_no"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="25dp"
+            android:paddingEnd="16dp"
+            android:paddingVertical="8dp"
+            android:text="Bus No: ABC123"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <!-- Driver Name -->
+        <TextView
+            android:id="@+id/driver_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="25dp"
+            android:paddingEnd="16dp"
+            android:paddingVertical="8dp"
+            android:text="Driver: John Doe"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <!-- Seat No. -->
+        <TextView
+            android:id="@+id/seat_no"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="25dp"
+            android:paddingEnd="16dp"
+            android:paddingVertical="8dp"
+            android:text="Seat No: 5A"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+
+        <!-- Date -->
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="25dp"
+            android:paddingEnd="16dp"
+            android:paddingVertical="8dp"
+            android:text="Date: 2024-04-05"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <!-- Time -->
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="25dp"
+            android:paddingEnd="16dp"
+            android:paddingVertical="8dp"
+            android:text="Time: 10:00 AM"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <!-- Status -->
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="25dp"
+            android:paddingEnd="16dp"
+            android:paddingVertical="8dp"
+            android:text="Status: Confirmed"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+
+    <!-- Border View for Button -->
+
+    <Button
+        android:id="@+id/action_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="#FF0606"
+        android:text="Action Button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.658"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/schedule_detail_container"
+        app:layout_constraintVertical_bias="0.045"
+        app:layout_constraintWidth_percent="0.9" />
+
+    <View
+        android:id="@+id/button_border"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/action_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
