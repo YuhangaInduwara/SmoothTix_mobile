@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent_login);
                 }
                 else{
-                    Toast.makeText(MainActivity.this, "result", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(MainActivity.this, "result", Toast.LENGTH_SHORT).show();
                     try {
                         JSONObject userData = new JSONObject(result);
 
@@ -66,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         checkSessionTask.execute();
+//        startActivity(intent_driver);
     }
     protected void setTransparentNotificationBar() {
         Window window = getWindow();

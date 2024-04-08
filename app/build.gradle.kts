@@ -47,5 +47,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.nimbusds:nimbus-jose-jwt:9.37.3")
+    implementation("androidx.annotation:annotation:1.7.1")
+
 
 }

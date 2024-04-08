@@ -201,81 +201,81 @@ public class PassengerActivity extends AppCompatActivity {
             }
         }
 
-        @Override
-        protected void onPostExecute(String result) {
-            Log.d("Test12", result);
-            try {
-                List<Booking> bookings = parseJsonResponse(result);
+//        @Override
+//        protected void onPostExecute(String result) {
+//            Log.d("Test12", result);
+//            try {
+//                List<Booking> bookings = parseJsonResponse(result);
+//
+//                Log.d("Test12", String.valueOf(bookings.size()));
+//                Log.d("Test12", result);
+//
+////                if (bookings.size() > 0) {
+////                    showBooking(bookings.get(0), "VISIBLE", "container1");
+////
+////                    for (int i = 1; i < bookings.size(); i++) {
+////                        showBooking(bookings.get(i),"GONE", "container2");
+////                    }
+////                } else {
+////                    Log.w("MyTag", "No booking found");
+////                }
+//            } catch (Exception e) {
+//                Log.e(TAG, "Error parsing result: " + e.getMessage());
+//                Toast.makeText(PassengerActivity.this, "Error parsing result", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//
+//        private List<Booking> parseJsonResponse(String json) throws JSONException {
+//            List<Booking> bookings = new ArrayList<>();
+//
+//            JSONArray jsonArray = new JSONArray(json);
+//
+//            for (int i = 0; i < jsonArray.length(); i++) {
+//                JSONObject jsonSchedule = jsonArray.getJSONObject(i);
+//
+//                Booking booking = new Booking();
+//                booking.setScheduleId(jsonSchedule.getString("schedule_id"));
+//                booking.setBusProfileId(jsonSchedule.getString("booking_id"));
+////                schedule.setDateTime(jsonSchedule.getString("date_time"));
+////                schedule.setRouteNo(jsonSchedule.getString("route_no"));
+////                schedule.setStart(jsonSchedule.getString("start"));
+////                schedule.setDestination(jsonSchedule.getString("destination"));
+//
+//                bookings.add(booking);
+//            }
+//
+//            return bookings;
+//        }
 
-                Log.d("Test12", String.valueOf(bookings.size()));
-                Log.d("Test12", result);
-
-                if (bookings.size() > 0) {
-                    showBooking(bookings.get(0), "VISIBLE", "container1");
-
-                    for (int i = 1; i < bookings.size(); i++) {
-                        showBooking(bookings.get(i),"GONE", "container2");
-                    }
-                } else {
-                    Log.w("MyTag", "No booking found");
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error parsing result: " + e.getMessage());
-                Toast.makeText(PassengerActivity.this, "Error parsing result", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        private List<Booking> parseJsonResponse(String json) throws JSONException {
-            List<Booking> bookings = new ArrayList<>();
-
-            JSONArray jsonArray = new JSONArray(json);
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonSchedule = jsonArray.getJSONObject(i);
-
-                Booking booking = new Booking();
-                booking.setScheduleId(jsonSchedule.getString("schedule_id"));
-                booking.setBusProfileId(jsonSchedule.getString("booking_id"));
-//                schedule.setDateTime(jsonSchedule.getString("date_time"));
-//                schedule.setRouteNo(jsonSchedule.getString("route_no"));
-//                schedule.setStart(jsonSchedule.getString("start"));
-//                schedule.setDestination(jsonSchedule.getString("destination"));
-
-                bookings.add(booking);
-            }
-
-            return bookings;
-        }
-
-        protected void showBooking(Booking booking, String visibility, String container) {
-            LinearLayout container_layout = findViewById(R.id.container1);
-            if(container.equals("container1")){
-                container_layout = findViewById(R.id.container1);
-            } else if (container.equals("container2")) {
-                container_layout = findViewById(R.id.container2);
-            }
-
-            View inflatedViewCurrent = LayoutInflater.from(PassengerActivity.this).inflate(R.layout.activity_booking, container_layout, false);
-            Button btn_showMap = inflatedViewCurrent.findViewById(R.id.btn_showMap);
-            if(visibility.equals("GONE")){
-                btn_showMap.setEnabled(false);
-                int disabledColor = Color.GRAY; // Set your desired color for the disabled state
-                btn_showMap.setBackgroundTintList(android.content.res.ColorStateList.valueOf(disabledColor));
-            }
-            TextView schedule_id = inflatedViewCurrent.findViewById(R.id.schedule_id);
-            schedule_id.setText(booking.getScheduleId());
-            TextView bus_profile_id = inflatedViewCurrent.findViewById(R.id.bus_profile_id);
-            bus_profile_id.setText(booking.getBusProfileId());
-            TextView date_time = inflatedViewCurrent.findViewById(R.id.date_time);
-            date_time.setText(booking.getDateTime());
-            TextView start = inflatedViewCurrent.findViewById(R.id.start);
-            start.setText(booking.getStart());
-            TextView destination = inflatedViewCurrent.findViewById(R.id.destination);
-            destination.setText(booking.getDestination());
-
-            container_layout.addView(inflatedViewCurrent);
-            btn_showMap.setOnClickListener(v -> showConfirmationDialog());
-        }
+//        protected void showBooking(Booking booking, String visibility, String container) {
+//            LinearLayout container_layout = findViewById(R.id.container1);
+//            if(container.equals("container1")){
+//                container_layout = findViewById(R.id.container1);
+//            } else if (container.equals("container2")) {
+//                container_layout = findViewById(R.id.container2);
+//            }
+//
+//            View inflatedViewCurrent = LayoutInflater.from(PassengerActivity.this).inflate(R.layout.activity_booking, container_layout, false);
+//            Button btn_showMap = inflatedViewCurrent.findViewById(R.id.btn_showMap);
+//            if(visibility.equals("GONE")){
+//                btn_showMap.setEnabled(false);
+//                int disabledColor = Color.GRAY; // Set your desired color for the disabled state
+//                btn_showMap.setBackgroundTintList(android.content.res.ColorStateList.valueOf(disabledColor));
+//            }
+//            TextView schedule_id = inflatedViewCurrent.findViewById(R.id.schedule_id);
+//            schedule_id.setText(booking.getScheduleId());
+//            TextView bus_profile_id = inflatedViewCurrent.findViewById(R.id.bus_profile_id);
+//            bus_profile_id.setText(booking.getBusProfileId());
+//            TextView date_time = inflatedViewCurrent.findViewById(R.id.date_time);
+//            date_time.setText(booking.getDateTime());
+//            TextView start = inflatedViewCurrent.findViewById(R.id.start);
+//            start.setText(booking.getStart());
+//            TextView destination = inflatedViewCurrent.findViewById(R.id.destination);
+//            destination.setText(booking.getDestination());
+//
+//            container_layout.addView(inflatedViewCurrent);
+//            btn_showMap.setOnClickListener(v -> showConfirmationDialog());
+//        }
         private void showConfirmationDialog() {
             AlertDialog.Builder builder = new AlertDialog.Builder(PassengerActivity.this);
             builder.setTitle("Confirmation");
