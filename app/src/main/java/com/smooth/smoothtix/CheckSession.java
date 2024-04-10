@@ -29,7 +29,7 @@ public class CheckSession extends AsyncTask<Void, Void, String> {
             String jwtToken = preferences.getString("jwt_token", "");
 
             if (jwtToken.isEmpty()) {
-                return "Token not available";
+                return "-1";
             }
 
             String apiUrl = server_url + "/loginController?action=validate";
