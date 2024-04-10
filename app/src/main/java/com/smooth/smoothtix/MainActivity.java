@@ -34,11 +34,11 @@ public class MainActivity extends AppCompatActivity {
         CheckSession checkSessionTask = new CheckSession(MainActivity.this, new CheckSessionCallback() {
             @Override
             public void onCheckSessionCompleted(String result) {
-                if(Objects.equals(result, "401")){
+                if(Objects.equals(result, "401") || Objects.equals(result, "400") || Objects.equals(result, "500") || Objects.equals(result, "404") || Objects.equals(result, "-1")){
                     startActivity(intent_login);
                 }
                 else{
-//                    Toast.makeText(MainActivity.this, "result", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(MainActivity.this, result, Toast.LENGTH_SHORT).show();
                     try {
                         JSONObject userData = new JSONObject(result);
 
@@ -52,11 +52,11 @@ public class MainActivity extends AppCompatActivity {
                         else if(Objects.equals(userRole, "5")){
                             startActivity(intent_conductor);
                         }
-                        else if(Objects.equals(userRole, "4")){
+                        else if(Objects.equals(userRole, "4") || Objects.equals(userRole, "3") || Objects.equals(userRole, "2") || Objects.equals(userRole, "1")){
                             startActivity(intent_driver);
                         }
                         else{
-                            Toast.makeText(MainActivity.this, "You are not allowed to login!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "You are not allowed to enter!", Toast.LENGTH_SHORT).show();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

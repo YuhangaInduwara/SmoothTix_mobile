@@ -24,6 +24,8 @@ import java.nio.charset.StandardCharsets;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private static final String server_url = Constants.server_url;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
             String passwordValue = params[1];
 
             try {
-                String apiUrl = "http://10.0.2.2:2000/SmoothTix_war_exploded/loginController";
+                String apiUrl = server_url + "/loginController";
 
                 URL url = new URL(apiUrl);
 
@@ -129,7 +131,8 @@ public class LoginActivity extends AppCompatActivity {
                     Intent intent = new Intent(LoginActivity.this, PassengerActivity.class);
                     startActivity(intent);
                 } else {
-                    Toast.makeText(LoginActivity.this, "Error: Sorry! You can't access the mobile version.", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(LoginActivity.this, PassengerActivity.class);
+                    startActivity(intent);
                 }
             } else {
                 Toast.makeText(LoginActivity.this, "Error: Invalid response format", Toast.LENGTH_SHORT).show();

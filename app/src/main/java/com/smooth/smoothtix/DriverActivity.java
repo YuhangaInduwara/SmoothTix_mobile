@@ -2,7 +2,9 @@ package com.smooth.smoothtix;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,17 +21,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.annotation.NonNull;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -44,7 +56,16 @@ public class DriverActivity extends AppCompatActivity {
     TextView user_name, schedule_no, bus_no, route_no, route, conductor, date, time, status;
     ImageView userImageView, refresh_image;
     Button action_button;
-    String userName, nic, userRole, p_id, driverId;
+    String userName, nic, userRole, p_id, driverId, schedule_id;
+    public static final int DEFAULT_UPDATE_INTERVAL = 30;
+    public static final int FAST_UPDATE_INTERVAL = 5;
+    public static final int PERMISSION_FINE_LOCATION = 99;
+    TextView journey_desc;
+    Button end_button;
+    LocationCallback locationCallBack;
+    FusedLocationProviderClient fusedLocationProviderClient;
+    LocationRequest locationRequest;
+    Boolean isEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +103,14 @@ public class DriverActivity extends AppCompatActivity {
         });
 
         if (action_button != null) {
-            action_button.setOnClickListener(v -> showConfirmationDialog());
+            action_button.setOnClickListener(v -> {
+                if(isEnabled == false){
+                    showConfirmationDialog_1();
+                }
+                else{
+                    showConfirmationDialog_2();
+                }
+            });
         } else {
             Log.e("DriverActivity", "action_button is null");
         }
@@ -184,52 +212,56 @@ public class DriverActivity extends AppCompatActivity {
     }
 
     private class FetchDataTask extends AsyncTask<String, Void, String> {
-            @Override
-            protected String doInBackground(String... params) {
-                try {
-                    JSONArray jsonArray = new JSONArray(params[0]);
-                    JSONObject jsonObject = jsonArray.getJSONObject(0);
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                JSONArray jsonArray = new JSONArray(params[0]);
+                JSONObject jsonObject = jsonArray.getJSONObject(0);
 
-                    driverId = jsonObject.getString("driver_id");
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-                try {
-                    String apiUrl = server_url + "/scheduleController";
-                    URL url = new URL(apiUrl);
-
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-                    connection.setRequestMethod("GET");
-                    connection.setRequestProperty("Content-Type", "application/json");
-                    connection.setRequestProperty("driver_id", driverId);
-
-
-                    int responseCode = connection.getResponseCode();
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
-                        try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                            StringBuilder response = new StringBuilder();
-                            String line;
-                            while ((line = reader.readLine()) != null) {
-                                response.append(line);
-                            }
-                            return response.toString();
-                        }
-                    } else {
-                        return "Error: " + responseCode;
-                    }
-                } catch (IOException e) {
-                    return "Error: " + e.getMessage();
-                }
+                driverId = jsonObject.getString("driver_id");
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
             }
+            try {
+                String apiUrl = server_url + "/scheduleController";
+                URL url = new URL(apiUrl);
+
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("driver_id", driverId);
+
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                        StringBuilder response = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            response.append(line);
+                        }
+                        return response.toString();
+                    }
+                } else {
+                    return "Error: " + responseCode;
+                }
+            } catch (IOException e) {
+                return "Error: " + e.getMessage();
+            }
+        }
 
         @SuppressLint("SetTextI18n")
         @Override
         protected void onPostExecute(String result) {
             if(Objects.equals(result, "[]")){
+                action_button.setEnabled(false);
+                action_button.setBackgroundColor(getResources().getColor(R.color.gray));
                 Toast.makeText(DriverActivity.this, "No upcoming schedules!", Toast.LENGTH_SHORT).show();
             }
             else if(Objects.equals(result, "400") || Objects.equals(result, "401") || Objects.equals(result, "402") || Objects.equals(result, "500")){
+                action_button.setEnabled(false);
+                action_button.setBackgroundColor(getResources().getColor(R.color.gray));
                 Toast.makeText(DriverActivity.this, "Invalid request or Server error", Toast.LENGTH_SHORT).show();
             }
             else{
@@ -245,6 +277,8 @@ public class DriverActivity extends AppCompatActivity {
                     date.setText("Date: " + jsonObject.getString("date"));
                     time.setText("Time: " + jsonObject.getString("time"));
                     status.setText("Status: " + jsonObject.getString("status"));
+
+                    schedule_id = jsonObject.getString("schedule_id");
 
                     String timeString = jsonObject.getString("time");
 
@@ -270,14 +304,15 @@ public class DriverActivity extends AppCompatActivity {
         }
     }
 
-    private void showConfirmationDialog() {
+    private void showConfirmationDialog_1() {
         AlertDialog.Builder builder = new AlertDialog.Builder(DriverActivity.this);
         builder.setTitle("Confirmation");
         builder.setMessage("Are you sure you want start the journey?");
 
         builder.setPositiveButton("Yes", (dialog, which) -> {
-            Intent intent = new Intent(DriverActivity.this, LocationActivity.class);
-            startActivity(intent);
+            initializeLocationSharing();
+            enableButton();
+            dialog.dismiss();
         });
 
         builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
@@ -293,6 +328,242 @@ public class DriverActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    private void showConfirmationDialog_2() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(DriverActivity.this);
+        builder.setTitle("Confirmation");
+        builder.setMessage("Are you sure you want stop the journey?");
+
+        builder.setPositiveButton("Yes", (dialog, which) -> {
+            stopLocationUpdates();
+            disableButton();
+            dialog.dismiss();
+        });
+
+        builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = ((AlertDialog) dialogInterface).getButton(AlertDialog.BUTTON_POSITIVE);
+            positiveButton.setTextColor(getResources().getColor(R.color.red));
+
+            Button negativeButton = ((AlertDialog) dialogInterface).getButton(AlertDialog.BUTTON_NEGATIVE);
+            negativeButton.setTextColor(getResources().getColor(R.color.red));
+        });
+        dialog.show();
+    }
+
+    private void enableButton() {
+        isEnabled = true;
+        action_button.setText("Stop Journey");
+        action_button.setBackgroundColor(ContextCompat.getColor(this, R.color.green));
+    }
+
+    private void disableButton() {
+        isEnabled = false;
+        action_button.setText("Start Journey");
+        action_button.setBackgroundColor(ContextCompat.getColor(this, R.color.red));
+    }
+
+    private void initializeLocationSharing(){
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(1000 * DEFAULT_UPDATE_INTERVAL);
+        locationRequest.setFastestInterval(1000 * FAST_UPDATE_INTERVAL);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        new DriverActivity.newLocation().execute(schedule_id, "0.0", "0.0");
+
+        locationCallBack = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                updateLocationValues(locationResult.getLastLocation());
+            }
+        };
+
+        updateGPS();
+    }
+
+    private void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallBack, null);
+        } else {
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_FINE_LOCATION);
+        }
+    }
+
+    private void stopLocationUpdates() {
+        if (fusedLocationProviderClient != null && locationCallBack != null) {
+            try {
+                fusedLocationProviderClient.removeLocationUpdates(locationCallBack);
+            } catch (SecurityException e) {
+                // Handle permission-related exception
+                Log.e("DriverActivity", "Permission denied: " + e.getMessage());
+            } catch (Exception e) {
+                // Handle other exceptions
+                Log.e("DriverActivity", "Error stopping location updates: " + e.getMessage());
+            }
+        } else {
+            Log.e("DriverActivity", "fusedLocationProviderClient or locationCallBack is null");
+        }
+    }
+
+
+
+    private void updateGPS() {
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationProviderClient.getLastLocation().addOnSuccessListener(this, location -> {
+                updateLocationValues(location);
+                startLocationUpdates();
+            });
+        } else {
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_FINE_LOCATION);
+        }
+    }
+
+    private void updateLocationValues(Location location) {
+        if (location != null) {
+            new DriverActivity.updateLocation().execute(schedule_id, String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+        } else {
+            Log.e("SmoothTixError", "This app is not working properly");
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSION_FINE_LOCATION) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                updateGPS();
+            } else {
+                Log.e("SmoothTixError", "This app requires permission to be granted in order to work properly");
+                finish();
+            }
+        }
+    }
+
+    private class newLocation extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            String schedule_id = params[0];
+            String latitude = params[1];
+            String longitude = params[2];
+
+            try {
+                String apiUrl = "http://10.0.2.2:2000/SmoothTix_war_exploded/locationController";
+
+                URL url = new URL(apiUrl);
+
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
+
+                JSONObject jsonRequest = new JSONObject();
+                jsonRequest.put("schedule_id", schedule_id);
+                jsonRequest.put("latitude", latitude);
+                jsonRequest.put("longitude", longitude);
+
+                try (OutputStream outputStream = connection.getOutputStream()) {
+                    byte[] input = jsonRequest.toString().getBytes(StandardCharsets.UTF_8);
+                    outputStream.write(input, 0, input.length);
+                }
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                        StringBuilder response = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            response.append(line);
+                        }
+                        return response.toString();
+                    }
+                } else {
+                    return "Error: " + responseCode;
+                }
+            } catch (IOException e) {
+                return "Error: " + e.getMessage();
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        @Override
+        protected void onPostExecute(String result) {
+            try {
+                updateGPS();
+                locationCallBack = new LocationCallback() {
+                    @Override
+                    public void onLocationResult(LocationResult locationResult) {
+                        super.onLocationResult(locationResult);
+                        updateLocationValues(locationResult.getLastLocation());
+                    }
+                };
+            } catch (Exception e) {
+                Log.e("SmoothTixError", "Error parsing result");
+
+            }
+        }
+    }
+
+    private static class updateLocation extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            String schedule_id = params[0];
+            String latitude = params[1];
+            String longitude = params[2];
+
+            try {
+                String apiUrl = "http://10.0.2.2:2000/SmoothTix_war_exploded/locationController";
+
+                URL url = new URL(apiUrl);
+
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+                connection.setRequestMethod("PUT");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("schedule_id", schedule_id);
+                connection.setDoOutput(true);
+
+                JSONObject jsonRequest = new JSONObject();
+                jsonRequest.put("latitude", latitude);
+                jsonRequest.put("longitude", longitude);
+
+                try (OutputStream outputStream = connection.getOutputStream()) {
+                    byte[] input = jsonRequest.toString().getBytes(StandardCharsets.UTF_8);
+                    outputStream.write(input, 0, input.length);
+                }
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                        StringBuilder response = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            response.append(line);
+                        }
+                        return response.toString();
+                    }
+                } else {
+                    return "Error: " + responseCode;
+                }
+            } catch (IOException e) {
+                return "Error: " + e.getMessage();
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        @Override
+        protected void onPostExecute(String result) {
+
+        }
+    }
+    
     protected void setTransparentNotificationBar() {
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);

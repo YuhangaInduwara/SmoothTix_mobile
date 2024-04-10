@@ -14,7 +14,7 @@ public class Logout extends AsyncTask<Void, Void, String> {
 
     private final Context context;
     private final LogoutCallback callback;
-    private static final String server_url = "http://10.0.2.2:2000/SmoothTix_war_exploded";
+    private static final String server_url = Constants.server_url;
 
     public Logout(Context context, LogoutCallback callback) {
         this.context = context;

@@ -19,13 +19,7 @@ public class QRActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_qr);
-        setTransparentNotificationBar();
-        scan_qr = findViewById(R.id.scanQr);
-        scan_qr.setOnClickListener(v->
-        {
-            scanCode();
-        });
+        scanCode();
     }
 
     private void scanCode()
