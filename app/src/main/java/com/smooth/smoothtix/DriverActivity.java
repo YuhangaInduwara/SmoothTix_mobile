@@ -8,30 +8,24 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.annotation.NonNull;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,12 +36,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 public class DriverActivity extends AppCompatActivity {
@@ -60,8 +50,6 @@ public class DriverActivity extends AppCompatActivity {
     public static final int DEFAULT_UPDATE_INTERVAL = 30;
     public static final int FAST_UPDATE_INTERVAL = 5;
     public static final int PERMISSION_FINE_LOCATION = 99;
-    TextView journey_desc;
-    Button end_button;
     LocationCallback locationCallBack;
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
@@ -86,25 +74,18 @@ public class DriverActivity extends AppCompatActivity {
         action_button = findViewById(R.id.action_button);
         refresh_image = findViewById(R.id.refresh_image);
 
+        action_button.setEnabled(false);
+        action_button.setBackgroundColor(getResources().getColor(R.color.gray));
+
         setTransparentNotificationBar();
 
-        userImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showLogoutMenu(v);
-            }
-        });
+        userImageView.setOnClickListener(this::showLogoutMenu);
 
-        refresh_image.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                refreshPage();
-            }
-        });
+        refresh_image.setOnClickListener(v -> refreshPage());
 
         if (action_button != null) {
             action_button.setOnClickListener(v -> {
-                if(isEnabled == false){
+                if(!isEnabled){
                     showConfirmationDialog_1();
                 }
                 else{
@@ -114,7 +95,6 @@ public class DriverActivity extends AppCompatActivity {
         } else {
             Log.e("DriverActivity", "action_button is null");
         }
-
     }
 
     private void refreshPage() {
@@ -127,47 +107,38 @@ public class DriverActivity extends AppCompatActivity {
         PopupMenu popupMenu = new PopupMenu(this, v);
         popupMenu.inflate(R.menu.logout_menu);
 
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.menu_logout) {
-                    Logout logoutTask = new Logout(DriverActivity.this, new LogoutCallback() {
-                        @Override
-                        public void onLogoutCompleted(String result) {
-                            startActivity(new Intent(DriverActivity.this, MainActivity.class));
-                            finish();
-                        }
-                    });
-                    logoutTask.execute();
-                }
-                else if (item.getItemId() == R.id.menu_passenger) {
-                    startActivity(new Intent(DriverActivity.this, PassengerActivity.class));
+        popupMenu.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.menu_logout) {
+                Logout logoutTask = new Logout(DriverActivity.this, result -> {
+                    startActivity(new Intent(DriverActivity.this, MainActivity.class));
                     finish();
-                }
-                return true;
+                });
+                logoutTask.execute();
             }
+            else if (item.getItemId() == R.id.menu_passenger) {
+                startActivity(new Intent(DriverActivity.this, PassengerActivity.class));
+                finish();
+            }
+            return true;
         });
 
         popupMenu.show();
     }
 
     private void executeCheckSessionTask() {
-        CheckSession checkSessionTask = new CheckSession(DriverActivity.this, new CheckSessionCallback() {
-            @Override
-            public void onCheckSessionCompleted(String result) {
-                try {
-                    JSONObject userData = new JSONObject(result);
+        CheckSession checkSessionTask = new CheckSession(DriverActivity.this, result -> {
+            try {
+                JSONObject userData = new JSONObject(result);
 
-                    userName = userData.getString("user_name");
-                    nic = userData.getString("nic");
-                    userRole = userData.getString("user_role");
-                    p_id = userData.getString("p_id");
-                    user_name.setText(userName);
+                userName = userData.getString("user_name");
+                nic = userData.getString("nic");
+                userRole = userData.getString("user_role");
+                p_id = userData.getString("p_id");
+                user_name.setText(userName);
 
-                    new GetDriverId().execute(p_id);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                new GetDriverId().execute(p_id);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         });
         checkSessionTask.execute();
@@ -257,12 +228,11 @@ public class DriverActivity extends AppCompatActivity {
             if(Objects.equals(result, "[]")){
                 action_button.setEnabled(false);
                 action_button.setBackgroundColor(getResources().getColor(R.color.gray));
-                Toast.makeText(DriverActivity.this, "No upcoming schedules!", Toast.LENGTH_SHORT).show();
+                Log.e("DriverActivity", "No upcoming schedules!");
             }
-            else if(Objects.equals(result, "400") || Objects.equals(result, "401") || Objects.equals(result, "402") || Objects.equals(result, "500")){
-                action_button.setEnabled(false);
+            else if(Objects.equals(result, "400") || Objects.equals(result, "401") || Objects.equals(result, "402") || Objects.equals(result, "500") || Objects.equals(result, "Error:400") || Objects.equals(result, "Error:401") || Objects.equals(result, "Error:402") || Objects.equals(result, "Error:500")){                action_button.setEnabled(false);
                 action_button.setBackgroundColor(getResources().getColor(R.color.gray));
-                Toast.makeText(DriverActivity.this, "Invalid request or Server error", Toast.LENGTH_SHORT).show();
+                Log.e("DriverActivity", "Invalid request or Server error");
             }
             else{
                 try {
@@ -276,28 +246,47 @@ public class DriverActivity extends AppCompatActivity {
                     conductor.setText("Conductor: " + jsonObject.getString("conductor_name"));
                     date.setText("Date: " + jsonObject.getString("date"));
                     time.setText("Time: " + jsonObject.getString("time"));
-                    status.setText("Status: " + jsonObject.getString("status"));
+                    if(jsonObject.getString("status").equals("0")){
+                        status.setText("Status: Not Started");
+                    }
+                    else if(jsonObject.getString("status").equals("1")){
+                        status.setText("Status: Started");
+                    }
+                    else if(jsonObject.getString("status").equals("2")){
+                        status.setText("Status: Ended");
+                    }
 
                     schedule_id = jsonObject.getString("schedule_id");
 
                     String timeString = jsonObject.getString("time");
 
-                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-                    Date timeDate = sdf.parse(timeString);
+                    String[] timeParts = timeString.split(":");
+                    int hour = Integer.parseInt(timeParts[0]);
+                    int minute = Integer.parseInt(timeParts[1]);
 
                     Calendar calendar = Calendar.getInstance();
-                    Date currentTime = calendar.getTime();
+                    calendar.set(Calendar.HOUR_OF_DAY, hour);
+                    calendar.set(Calendar.MINUTE, minute);
+                    calendar.set(Calendar.SECOND, 0);
 
-                    assert timeDate != null;
+                    Date timeDate = calendar.getTime();
 
-//                    if (timeDate.before(currentTime)) {
-//                        action_button.setEnabled(false);
-//                        action_button.setBackgroundColor(getResources().getColor(R.color.gray));
-//                    }
-//                    else action_button.setEnabled(timeDate.after(currentTime));
+                    Date currentTime = new Date();
+                    Toast.makeText(DriverActivity.this, timeDate + " " + currentTime, Toast.LENGTH_SHORT).show();
+
+
+                    if (timeDate.after(currentTime)) {
+                        action_button.setEnabled(false);
+                        action_button.setBackgroundColor(getResources().getColor(R.color.gray));
+                    }
+                    else {
+                        action_button.setEnabled(timeDate.before(currentTime));
+                        action_button.setBackgroundColor(getResources().getColor(R.color.red));
+                    }
 
                 } catch (Exception e) {
-                    Toast.makeText(DriverActivity.this, "Error parsing result", Toast.LENGTH_SHORT).show();
+                    Log.e("DriverActivity", "Error parsing result");
+                    e.printStackTrace();
                 }
             }
 
@@ -307,7 +296,7 @@ public class DriverActivity extends AppCompatActivity {
     private void showConfirmationDialog_1() {
         AlertDialog.Builder builder = new AlertDialog.Builder(DriverActivity.this);
         builder.setTitle("Confirmation");
-        builder.setMessage("Are you sure you want start the journey?");
+        builder.setMessage("Are you sure you want to start the journey?");
 
         builder.setPositiveButton("Yes", (dialog, which) -> {
             initializeLocationSharing();
@@ -331,7 +320,7 @@ public class DriverActivity extends AppCompatActivity {
     private void showConfirmationDialog_2() {
         AlertDialog.Builder builder = new AlertDialog.Builder(DriverActivity.this);
         builder.setTitle("Confirmation");
-        builder.setMessage("Are you sure you want stop the journey?");
+        builder.setMessage("Are you sure you want to stop the journey?");
 
         builder.setPositiveButton("Yes", (dialog, which) -> {
             stopLocationUpdates();
@@ -355,13 +344,15 @@ public class DriverActivity extends AppCompatActivity {
     private void enableButton() {
         isEnabled = true;
         action_button.setText("Stop Journey");
-        action_button.setBackgroundColor(ContextCompat.getColor(this, R.color.green));
+        action_button.setBackgroundColor(ContextCompat.getColor(this, R.color.red));
+        new UpdateStatusTask().execute("1");
     }
 
     private void disableButton() {
         isEnabled = false;
         action_button.setText("Start Journey");
         action_button.setBackgroundColor(ContextCompat.getColor(this, R.color.red));
+        new UpdateStatusTask().execute("2");
     }
 
     private void initializeLocationSharing(){
@@ -453,7 +444,7 @@ public class DriverActivity extends AppCompatActivity {
             String longitude = params[2];
 
             try {
-                String apiUrl = "http://10.0.2.2:2000/SmoothTix_war_exploded/locationController";
+                String apiUrl = server_url + "/locationController";
 
                 URL url = new URL(apiUrl);
 
@@ -519,7 +510,7 @@ public class DriverActivity extends AppCompatActivity {
             String longitude = params[2];
 
             try {
-                String apiUrl = "http://10.0.2.2:2000/SmoothTix_war_exploded/locationController";
+                String apiUrl = server_url +"/locationController";
 
                 URL url = new URL(apiUrl);
 
@@ -561,6 +552,45 @@ public class DriverActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
 
+        }
+    }
+
+    private class UpdateStatusTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            String status = params[0];
+            try {
+                String apiUrl = server_url + "/scheduleController?schedule_id=" + schedule_id + "&status=" + status;
+                URL url = new URL(apiUrl);
+
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+                connection.setRequestMethod("PUT");
+                connection.setRequestProperty("Content-Type", "application/json");
+
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                        StringBuilder response = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            response.append(line);
+                        }
+                        return response.toString();
+                    }
+                } else {
+                    return "Error: " + responseCode;
+                }
+            } catch (IOException e) {
+                return "Error: " + e.getMessage();
+            }
+        }
+
+        @SuppressLint("SetTextI18n")
+        @Override
+        protected void onPostExecute(String result) {
+//            Toast.makeText(DriverActivity.this, result, Toast.LENGTH_SHORT).show();
         }
     }
     
