@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -15,7 +13,7 @@ public class CheckSession extends AsyncTask<Void, Void, String> {
 
     private final Context context;
     private final CheckSessionCallback callback;
-    private static final String server_url = "http://10.0.2.2:2000/SmoothTix_war_exploded";
+    private static final String server_url = Constants.server_url;
 
     public CheckSession(Context context, CheckSessionCallback callback) {
         this.context = context;
@@ -61,7 +59,6 @@ public class CheckSession extends AsyncTask<Void, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-//        Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
         callback.onCheckSessionCompleted(result);
     }
 }

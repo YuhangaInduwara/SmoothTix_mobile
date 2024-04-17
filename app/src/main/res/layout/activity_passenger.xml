@@ -101,7 +101,7 @@
             android:paddingStart="25dp"
             android:paddingEnd="16dp"
             android:paddingVertical="8dp"
-            android:text="Schedule No: SH0000"
+            android:text="Booking No: BK0000"
             android:textColor="@android:color/black"
             android:textSize="18sp" />
 
@@ -178,16 +178,6 @@
             android:textSize="18sp" />
 
         <!-- Check_in -->
-        <TextView
-            android:id="@+id/check_in"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="25dp"
-            android:paddingEnd="16dp"
-            android:paddingVertical="8dp"
-            android:text="Check In: No"
-            android:textColor="@android:color/black"
-            android:textSize="18sp" />
 
         <!-- Status -->
         <TextView

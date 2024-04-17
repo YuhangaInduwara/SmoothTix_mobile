@@ -6,89 +6,9 @@
     android:layout_height="match_parent"
     android:backgroundTint="#FFFFFF">
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="106dp"
-        android:layout_height="82dp"
-        android:layout_marginStart="-50dp"
-        android:layout_marginTop="9dp"
-        app:layout_constraintEnd_toStartOf="@+id/user_name"
-        app:layout_constraintHorizontal_bias="0.302"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/logo" />
-
-    <ImageView
-        android:id="@+id/userImage"
-        android:layout_width="38dp"
-        android:layout_height="45dp"
-        android:layout_marginTop="23dp"
-        android:layout_marginEnd="2dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.955"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/aboutme" />
-
-    <TextView
-        android:id="@+id/user_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="16dp"
-        android:text="UserName"
-        app:layout_constraintBottom_toBottomOf="@+id/userImage"
-        app:layout_constraintEnd_toStartOf="@+id/userImage"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.738" />
-
-    <Button
-        android:id="@+id/end_button"
-        android:layout_width="153dp"
-        android:layout_height="48dp"
-        android:layout_marginBottom="80dp"
-        android:backgroundTint="#FF0606"
-        android:onClick="buttonControl"
-        android:text="End"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageView
-        android:id="@+id/gifImageView"
-        android:layout_width="260dp"
-        android:layout_height="351dp"
-        android:layout_marginTop="32dp"
-        app:layout_constraintBottom_toTopOf="@+id/journey_desc"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2"
-        app:layout_constraintVertical_bias="0.341"
-        app:srcCompat="@drawable/location_sharing" />
-
-    <TextView
-        android:id="@+id/journey_desc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:text="Location is not sharing!"
-        android:textSize="20dp"
-        app:layout_constraintBottom_toTopOf="@+id/show_location"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        android:textStyle="bold"/>
-
-    <Button
-        android:id="@+id/show_location"
-        android:layout_width="153dp"
-        android:layout_height="48dp"
-        android:layout_marginBottom="28dp"
-        android:text="View location"
-        app:layout_constraintBottom_toTopOf="@+id/end_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:backgroundTint="#FF0606"/>
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

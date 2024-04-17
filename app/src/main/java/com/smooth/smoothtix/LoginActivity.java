@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -40,8 +41,27 @@ public class LoginActivity extends AppCompatActivity {
         String nicValue = nic.getText().toString();
         String passwordValue = password.getText().toString();
 
-        new LoginTask().execute(nicValue, passwordValue);
+        if (!nicValue.isEmpty() && !passwordValue.isEmpty()) {
+            if (isValidNIC(nicValue)) {
+                new LoginTask().execute(nicValue, passwordValue);
+            } else {
+                nic.setError("Invalid NIC");
+            }
+        }
+        else if(nicValue.isEmpty()){
+            nic.setError("NIC can not be empty");
+        }
+        else{
+            password.setError("Password can not be empty");
+        }
+
     }
+
+    private boolean isValidNIC(String nic) {
+        String regex = "^(\\d{9}[vV]|\\d{12})$";
+        return nic.matches(regex);
+    }
+
 
     private class LoginTask extends AsyncTask<String, Void, String> {
 
@@ -103,10 +123,12 @@ public class LoginActivity extends AppCompatActivity {
                     handleUserRole(jsonResponse);
 
                 } else {
-                    Toast.makeText(LoginActivity.this, "Error: Invalid response format", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Incorrect NIC or Password!", Toast.LENGTH_SHORT).show();
+                    Log.e("LoginActivity", "Error: Invalid response format!");
                 }
             } catch (JSONException e) {
-                Toast.makeText(LoginActivity.this, "Error parsing JSON response", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, "Incorrect NIC or Password!", Toast.LENGTH_SHORT).show();
+                Log.e("LoginActivity", "Error parsing JSON response!");
                 e.printStackTrace();
             }
         }
@@ -135,7 +157,7 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             } else {
-                Toast.makeText(LoginActivity.this, "Error: Invalid response format", Toast.LENGTH_SHORT).show();
+                Log.e("LoginActivity", "Error: Invalid response format");
             }
         }
     }

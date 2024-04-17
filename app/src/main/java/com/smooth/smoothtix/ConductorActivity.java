@@ -1,35 +1,25 @@
 package com.smooth.smoothtix;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.annotation.NonNull;
-
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,12 +28,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 public class ConductorActivity extends AppCompatActivity {
@@ -74,34 +60,28 @@ public class ConductorActivity extends AppCompatActivity {
         action_button2 = findViewById(R.id.action_button2);
         refresh_image = findViewById(R.id.refresh_image);
 
+        action_button1.setEnabled(false);
+        action_button1.setBackgroundColor(getResources().getColor(R.color.gray));
+        action_button2.setEnabled(false);
+        action_button2.setBackgroundColor(getResources().getColor(R.color.gray));
+
         setTransparentNotificationBar();
 
-        userImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showLogoutMenu(v);
-            }
-        });
+        userImageView.setOnClickListener(this::showLogoutMenu);
 
-        refresh_image.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                refreshPage();
-            }
-        });
+        refresh_image.setOnClickListener(v -> refreshPage());
 
         if (action_button1 != null) {
-            action_button1.setOnClickListener(v -> {
-                scanCode();
-            });
+            action_button1.setOnClickListener(v -> scanCode());
         } else {
             Log.e("ConductorActivity", "action_button1 is null");
         }
 
         if (action_button2 != null) {
             action_button2.setOnClickListener(v -> {
-                Intent intent = new Intent(ConductorActivity.this, QRActivity.class);
-                startActivity(intent);
+                    Intent intent_login = new Intent(this, PassengerAdmitActivity.class);
+                    intent_login.putExtra("schedule_id", schedule_id);
+                    startActivity(intent_login);
             });
         } else {
             Log.e("ConductorActivity", "action_button2 is null");
@@ -119,47 +99,38 @@ public class ConductorActivity extends AppCompatActivity {
         PopupMenu popupMenu = new PopupMenu(this, v);
         popupMenu.inflate(R.menu.logout_menu);
 
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.menu_logout) {
-                    Logout logoutTask = new Logout(ConductorActivity.this, new LogoutCallback() {
-                        @Override
-                        public void onLogoutCompleted(String result) {
-                            startActivity(new Intent(ConductorActivity.this, MainActivity.class));
-                            finish();
-                        }
-                    });
-                    logoutTask.execute();
-                }
-                else if (item.getItemId() == R.id.menu_passenger) {
-                    startActivity(new Intent(ConductorActivity.this, PassengerActivity.class));
+        popupMenu.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.menu_logout) {
+                Logout logoutTask = new Logout(ConductorActivity.this, result -> {
+                    startActivity(new Intent(ConductorActivity.this, MainActivity.class));
                     finish();
-                }
-                return true;
+                });
+                logoutTask.execute();
             }
+            else if (item.getItemId() == R.id.menu_passenger) {
+                startActivity(new Intent(ConductorActivity.this, PassengerActivity.class));
+                finish();
+            }
+            return true;
         });
 
         popupMenu.show();
     }
 
     private void executeCheckSessionTask() {
-        CheckSession checkSessionTask = new CheckSession(ConductorActivity.this, new CheckSessionCallback() {
-            @Override
-            public void onCheckSessionCompleted(String result) {
-                try {
-                    JSONObject userData = new JSONObject(result);
+        CheckSession checkSessionTask = new CheckSession(ConductorActivity.this, result -> {
+            try {
+                JSONObject userData = new JSONObject(result);
 
-                    userName = userData.getString("user_name");
-                    nic = userData.getString("nic");
-                    userRole = userData.getString("user_role");
-                    p_id = userData.getString("p_id");
-                    user_name.setText(userName);
+                userName = userData.getString("user_name");
+                nic = userData.getString("nic");
+                userRole = userData.getString("user_role");
+                p_id = userData.getString("p_id");
+                user_name.setText(userName);
 
-                    new GetDriverId().execute(p_id);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                new GetDriverId().execute(p_id);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         });
         checkSessionTask.execute();
@@ -247,10 +218,10 @@ public class ConductorActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             if(Objects.equals(result, "[]")){
-                Toast.makeText(ConductorActivity.this, "No upcoming schedules!", Toast.LENGTH_SHORT).show();
+                Log.e("ConductorActivity", "No upcoming schedules!");
             }
             else if(Objects.equals(result, "400") || Objects.equals(result, "401") || Objects.equals(result, "402") || Objects.equals(result, "500")){
-                Toast.makeText(ConductorActivity.this, "Invalid request or Server error", Toast.LENGTH_SHORT).show();
+                Log.e("ConductorActivity", "Invalid request or Server error");
             }
             else{
                 try {
@@ -264,32 +235,48 @@ public class ConductorActivity extends AppCompatActivity {
                     driver.setText("Driver: " + jsonObject.getString("driver_name"));
                     date.setText("Date: " + jsonObject.getString("date"));
                     time.setText("Time: " + jsonObject.getString("time"));
-                    status.setText("Status: " + jsonObject.getString("status"));
+                    if(jsonObject.getString("status").equals("0")){
+                        status.setText("Status: Not Started");
+                    }
+                    else if(jsonObject.getString("status").equals("1")){
+                        status.setText("Status: Started");
+                    }
+                    else if(jsonObject.getString("status").equals("2")){
+                        status.setText("Status: Ended");
+                    }
+
 
                     schedule_id = jsonObject.getString("schedule_id");
 
                     String timeString = jsonObject.getString("time");
 
-                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-                    Date timeDate = sdf.parse(timeString);
+                    String[] timeParts = timeString.split(":");
+                    int hour = Integer.parseInt(timeParts[0]);
+                    int minute = Integer.parseInt(timeParts[1]);
 
                     Calendar calendar = Calendar.getInstance();
-                    Date currentTime = calendar.getTime();
+                    calendar.set(Calendar.HOUR_OF_DAY, hour);
+                    calendar.set(Calendar.MINUTE, minute);
+                    calendar.set(Calendar.SECOND, 0);
 
-                    assert timeDate != null;
+                    Date timeDate = calendar.getTime();
 
-//                    if (timeDate.before(currentTime)) {
-//                        action_button1.setEnabled(false);
-//                        action_button2.setBackgroundColor(getResources().getColor(R.color.gray));//                        action_button1.setEnabled(false);
-//                        action_button2.setBackgroundColor(getResources().getColor(R.color.gray));
-//                    }
-//                    else {
-//                          action_button1.setEnabled(timeDate.after(currentTime));
-//                          action_button2.setEnabled(timeDate.after(currentTime));
-//                    }
+                    Date currentTime = new Date();
 
+                    Calendar timeDateMinusOneMinute = Calendar.getInstance();
+                    timeDateMinusOneMinute.setTime(timeDate);
+                    timeDateMinusOneMinute.add(Calendar.HOUR, -1);
+                    Date timeDateMinusOneMinuteDate = timeDateMinusOneMinute.getTime();
+
+                    if (currentTime.after(timeDateMinusOneMinuteDate)) {
+                        action_button1.setEnabled(true);
+                        action_button1.setBackgroundColor(getResources().getColor(R.color.red));
+                        action_button2.setEnabled(true);
+                        action_button2.setBackgroundColor(getResources().getColor(R.color.red));
+                    }
                 } catch (Exception e) {
-                    Toast.makeText(ConductorActivity.this, "Error parsing result", Toast.LENGTH_SHORT).show();
+                    Log.e("ConductorActivity", "Error parsing result");
+                    e.printStackTrace();
                 }
             }
 
@@ -316,14 +303,13 @@ public class ConductorActivity extends AppCompatActivity {
             String scheduleId = parts[0];
             String bookingId = parts[1];
 
-//            if(Objects.equals(scheduleId, schedule_id)){
+            if(Objects.equals(scheduleId, schedule_id)){
                 new ConductorActivity.FetchBookingData().execute(bookingId);
-//            }
-//            else{
-//                message = "The schedule is not matched!";
-//                showBookingDetails(message, 0, null);
-//
-//            }
+            }
+            else{
+                message = "The schedule is not matched!";
+                showBookingDetails(message, 0, null, null);
+            }
         }
     });
 
@@ -331,7 +317,6 @@ public class ConductorActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             String booking_id = params[0];
-//            return booking_id;
             try {
                 String apiUrl = server_url + "/bookingController?booking_id=" + booking_id;
                 URL url = new URL(apiUrl);
@@ -362,21 +347,19 @@ public class ConductorActivity extends AppCompatActivity {
         @SuppressLint("SetTextI18n")
         @Override
         protected void onPostExecute(String result) {
-//            Toast.makeText(ConductorActivity.this, result, Toast.LENGTH_SHORT).show();
             if(Objects.equals(result, "[]")){
-                Toast.makeText(ConductorActivity.this, "No upcoming schedules!", Toast.LENGTH_SHORT).show();
+                Log.e("ConductorActivity", "No booking data!");
             }
-            else if(Objects.equals(result, "400") || Objects.equals(result, "401") || Objects.equals(result, "402") || Objects.equals(result, "500")){
-                Toast.makeText(ConductorActivity.this, "Invalid request or Server error", Toast.LENGTH_SHORT).show();
+            else if(Objects.equals(result, "400") || Objects.equals(result, "401") || Objects.equals(result, "402") || Objects.equals(result, "500") || Objects.equals(result, "Error:400") || Objects.equals(result, "Error:401") || Objects.equals(result, "Error:402") || Objects.equals(result, "Error:500")){                Log.e("ConductorActivity", "Invalid request or Server error!");
             }
             else{
                 try {
                     JSONArray jsonArray = new JSONArray(result);
                     JSONObject jsonObject = jsonArray.getJSONObject(0);
-                    String message = "Booking Id: " + jsonObject.getString("booking_id") + "/n" + "Bus No: " + jsonObject.getString("reg_no") + "/n" + "Start: " + jsonObject.getString("start") + "/n" + "Destination: " + jsonObject.getString("destination") + "/n" + "Date: " + jsonObject.getString("date") + "/n" + "Time: " + jsonObject.getString("time") + "/n" + "Status: " + jsonObject.getString("status") + "/n" + "Booking Id: " + jsonObject.getString("booking_id") + "/n";
+                    String message = "Booking Id: " + jsonObject.getString("booking_id") + "/n" + "Bus No: " + jsonObject.getString("reg_no") + "/n" + "Start: " + jsonObject.getString("start") + "/n" + "Destination: " + jsonObject.getString("destination") + "/n" + "Date: " + jsonObject.getString("date") + "/n" + "Time: " + jsonObject.getString("time") + "/n" + "Seat No: " + jsonObject.getString("seat_no") + "/n" + "Status: " + jsonObject.getString("status") + "/n";
                     showBookingDetails(message, 1, jsonObject.getString("booking_id"), jsonObject.getString("status"));
                 } catch (Exception e) {
-//                    Toast.makeText(ConductorActivity.this, "Error parsing result", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
                 }
             }
 
@@ -384,9 +367,7 @@ public class ConductorActivity extends AppCompatActivity {
     }
 
     private void showBookingDetails(String message, int flag, String booking_id, String status){
-        // Replacing "/n" with HTML line break tag "<br>" for formatting
         message = message.replace("/n", "<br>");
-        // Building an HTML list
         StringBuilder htmlList = new StringBuilder();
         htmlList.append("<html><body><ul>");
         htmlList.append("<li>").append(message).append("</li>");
@@ -395,43 +376,25 @@ public class ConductorActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(ConductorActivity.this);
         builder.setTitle("Booking Details");
 
-        // Setting message as HTML content
         builder.setMessage(Html.fromHtml(htmlList.toString(), Html.FROM_HTML_MODE_COMPACT));
 
         if(flag == 1 && Objects.equals(status, "0")){
-            builder.setPositiveButton("Admit", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    if(booking_id != null){
-                        new ConductorActivity.AdmitPassenger().execute(booking_id);
-                    }
-                    dialogInterface.dismiss();
+            builder.setPositiveButton("Admit", (dialogInterface, i) -> {
+                if(booking_id != null){
+                    new AdmitPassenger().execute(booking_id);
                 }
+                dialogInterface.dismiss();
             });
 
-            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            });
+            builder.setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss());
         }
+
         else if (flag == 1 && Objects.equals(status, "1")){
             Toast.makeText(ConductorActivity.this, "Already admitted", Toast.LENGTH_SHORT).show();
-            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            });
+            builder.setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss());
         }
         else{
-            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            });
+            builder.setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss());
         }
         builder.show();
     }

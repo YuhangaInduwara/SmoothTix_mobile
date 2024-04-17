@@ -6,22 +6,15 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.annotation.NonNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,12 +23,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 public class PassengerActivity extends AppCompatActivity {
@@ -60,11 +49,13 @@ public class PassengerActivity extends AppCompatActivity {
         seat_no = findViewById(R.id.seat_no);
         date = findViewById(R.id.date);
         time = findViewById(R.id.time);
-        check_in = findViewById(R.id.check_in);
         status = findViewById(R.id.status);
         userImageView = findViewById(R.id.userImage);
         action_button = findViewById(R.id.action_button);
         refresh_image = findViewById(R.id.refresh_image);
+
+        action_button.setEnabled(false);
+        action_button.setBackgroundColor(getResources().getColor(R.color.gray));
 
         setTransparentNotificationBar();
 
@@ -83,7 +74,11 @@ public class PassengerActivity extends AppCompatActivity {
         });
 
         if (action_button != null) {
-            action_button.setOnClickListener(v -> showConfirmationDialog());
+            action_button.setOnClickListener(v -> {
+                Intent intent_login = new Intent(this, ViewLocationActivity.class);
+                intent_login.putExtra("schedule_id", schedule_id);
+                startActivity(intent_login);
+            });
         } else {
             Log.e("PassengerActivity", "action_button is null");
         }
@@ -146,14 +141,13 @@ public class PassengerActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             try {
-                String apiUrl = server_url + "/scheduleController";
+                String apiUrl = server_url + "/bookingController?p_id=" + p_id;
                 URL url = new URL(apiUrl);
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("Content-Type", "application/json");
-                connection.setRequestProperty("p_id", p_id);
 
 
                 int responseCode = connection.getResponseCode();
@@ -177,11 +171,12 @@ public class PassengerActivity extends AppCompatActivity {
         @SuppressLint("SetTextI18n")
         @Override
         protected void onPostExecute(String result) {
+
             if(Objects.equals(result, "[]")){
-                Toast.makeText(PassengerActivity.this, "No upcoming schedules!", Toast.LENGTH_SHORT).show();
+                Log.e("PassengerActivity", "No upcoming bookings!");
             }
-            else if(Objects.equals(result, "400") || Objects.equals(result, "401") || Objects.equals(result, "402") || Objects.equals(result, "500")){
-                Toast.makeText(PassengerActivity.this, "Invalid request or Server error", Toast.LENGTH_SHORT).show();
+            else if(Objects.equals(result, "400") || Objects.equals(result, "401") || Objects.equals(result, "402") || Objects.equals(result, "500") || Objects.equals(result, "Error:400") || Objects.equals(result, "Error:401") || Objects.equals(result, "Error:402") || Objects.equals(result, "Error:500")){
+                Log.e("PassengerActivity", "Invalid request or Server error");
             }
             else{
                 try {
@@ -190,61 +185,52 @@ public class PassengerActivity extends AppCompatActivity {
 
                     schedule_id = jsonObject.getString("schedule_id");
 
-                    schedule_no.setText("Schedule No: " + jsonObject.getString("schedule_id"));
+                    schedule_no.setText("Booking No: " + jsonObject.getString("booking_id"));
                     bus_no.setText("Bus No: " + jsonObject.getString("reg_no"));
                     route_no.setText("Route No: " + jsonObject.getString("route_no"));
-                    route.setText("Route: " + jsonObject.getString("route"));
-                    seat_no.setText("Conductor: " + jsonObject.getString("seat_no"));
+                    route.setText("Route: " + jsonObject.getString("start") + "-" + jsonObject.getString("destination"));
+                    seat_no.setText("Seat No: " + jsonObject.getString("seat_no"));
                     date.setText("Date: " + jsonObject.getString("date"));
                     time.setText("Time: " + jsonObject.getString("time"));
-                    check_in.setText("Time: " + jsonObject.getString("check_in"));
-                    status.setText("Status: " + jsonObject.getString("status"));
+                    if(jsonObject.getString("status").equals("0")){
+                        status.setText("Status: Pending");
+                    }
+                    else if(jsonObject.getString("status").equals("1")){
+                        status.setText("Status: Checked In");
+                    }
 
                     String timeString = jsonObject.getString("time");
 
-                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-                    Date timeDate = sdf.parse(timeString);
+                    String[] timeParts = timeString.split(":");
+                    int hour = Integer.parseInt(timeParts[0]);
+                    int minute = Integer.parseInt(timeParts[1]);
 
                     Calendar calendar = Calendar.getInstance();
-                    Date currentTime = calendar.getTime();
+                    calendar.set(Calendar.HOUR_OF_DAY, hour);
+                    calendar.set(Calendar.MINUTE, minute);
+                    calendar.set(Calendar.SECOND, 0);
 
-                    assert timeDate != null;
+                    Date timeDate = calendar.getTime();
 
-//                    if (timeDate.before(currentTime)) {
-//                        action_button.setEnabled(false);
-//                        action_button.setBackgroundColor(getResources().getColor(R.color.gray));
-//                    }
-//                    else action_button.setEnabled(timeDate.after(currentTime));
+                    Date currentTime = new Date();
+
+
+                    if (timeDate.after(currentTime)) {
+                        action_button.setEnabled(false);
+                        action_button.setBackgroundColor(getResources().getColor(R.color.gray));
+                    }
+                    else if(jsonObject.getString("status").equals("1")){
+                        action_button.setEnabled(timeDate.before(currentTime));
+                        action_button.setBackgroundColor(getResources().getColor(R.color.red));
+                    }
 
                 } catch (Exception e) {
-                    Toast.makeText(PassengerActivity.this, "Error parsing result", Toast.LENGTH_SHORT).show();
+                    Log.e("PassengerActivity", "Error parsing result");
+                    e.printStackTrace();
                 }
             }
 
         }
-    }
-
-    private void showConfirmationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(PassengerActivity.this);
-        builder.setTitle("Confirmation");
-        builder.setMessage("Are you sure you want start the journey?");
-
-        builder.setPositiveButton("Yes", (dialog, which) -> {
-            Intent intent = new Intent(PassengerActivity.this, LocationActivity.class);
-            startActivity(intent);
-        });
-
-        builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
-
-        AlertDialog dialog = builder.create();
-        dialog.setOnShowListener(dialogInterface -> {
-            Button positiveButton = ((AlertDialog) dialogInterface).getButton(AlertDialog.BUTTON_POSITIVE);
-            positiveButton.setTextColor(getResources().getColor(R.color.red));
-
-            Button negativeButton = ((AlertDialog) dialogInterface).getButton(AlertDialog.BUTTON_NEGATIVE);
-            negativeButton.setTextColor(getResources().getColor(R.color.red));
-        });
-        dialog.show();
     }
 
     protected void setTransparentNotificationBar() {

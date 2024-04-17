@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -60,7 +59,6 @@ public class Logout extends AsyncTask<Void, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
-//        Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
         callback.onLogoutCompleted(result);
     }
 }
