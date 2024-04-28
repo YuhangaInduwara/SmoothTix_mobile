@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -88,8 +87,6 @@ public class ViewLocationActivity extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(String result) {
-            Toast.makeText(ViewLocationActivity.this, result, Toast.LENGTH_SHORT).show();
-
             if(Objects.equals(result, "[]")){
                 Log.e("ViewLocationActivity", "No location to show!");
             }
