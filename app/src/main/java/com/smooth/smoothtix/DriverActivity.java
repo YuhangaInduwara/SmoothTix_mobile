@@ -15,7 +15,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -272,7 +271,6 @@ public class DriverActivity extends AppCompatActivity {
                     Date timeDate = calendar.getTime();
 
                     Date currentTime = new Date();
-                    Toast.makeText(DriverActivity.this, timeDate + " " + currentTime, Toast.LENGTH_SHORT).show();
 
 
                     if (timeDate.after(currentTime)) {
@@ -590,7 +588,6 @@ public class DriverActivity extends AppCompatActivity {
         @SuppressLint("SetTextI18n")
         @Override
         protected void onPostExecute(String result) {
-//            Toast.makeText(DriverActivity.this, result, Toast.LENGTH_SHORT).show();
         }
     }
     

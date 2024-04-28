@@ -14,7 +14,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -390,7 +389,6 @@ public class ConductorActivity extends AppCompatActivity {
         }
 
         else if (flag == 1 && Objects.equals(status, "1")){
-            Toast.makeText(ConductorActivity.this, "Already admitted", Toast.LENGTH_SHORT).show();
             builder.setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss());
         }
         else{
@@ -434,7 +432,6 @@ public class ConductorActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            Toast.makeText(ConductorActivity.this, result, Toast.LENGTH_SHORT).show();
         }
     }
 
